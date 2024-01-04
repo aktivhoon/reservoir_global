@@ -40,13 +40,13 @@ class JaxReservoirTanh:
         nx = x.shape[1] - 3
         D = jnp.zeros((self.A.shape[0], nx))
         D = D.at[:, 0].set(self.r.reshape(-1))
-        for i in range(1, nx):
+        for i in track(range(1, nx)):
             self.propagate(x[:, i-1:i+3], c)
             D = D.at[:, i].set(self.r.reshape(-1))
         return D
 
     def propagate(self, x, c):
-        self.r = _propagate(self.r, x, c, self.delT, self.gam, self.A, self.B, self.C, self.d)
+        self.r = _propagate(self.r, x, c, self.delT, self.gam, self.A, self.B, self.C, self.d).block_until_ready()
         return self.r
 
     def del_r(self, r, x, c):
